@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Basic Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    }
+
+    .calculator {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      width: 320px;
+    }
+
+    .display {
+      background: #0f172a;
+      color: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 1.5rem;
+      text-align: right;
+      overflow-x: auto;
+    }
+
+    .result {
+      color: #38bdf8;
+      font-size: 1rem;
+      margin-top: 4px;
+      height: 1.2rem;
+    }
+
+    .buttons {
+      margin-top: 15px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      padding: 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      background: #334155;
+      color: #fff;
+      transition: transform 0.1s, background 0.2s;
+    }
+
+    button:hover { background: #475569; }
+    button:active { transform: scale(0.95); }
+
+    .op { background: #2563eb; }
+    .op:hover { background: #1d4ed8; }
+
+    .equal {
+      grid-column: span 2;
+      background: #22c55e;
+      font-weight: bold;
+    }
+    .equal:hover { background: #16a34a; }
+
+    .clear { background: #ef4444; }
+    .clear:hover { background: #dc2626; }
+
+    .zero { grid-column: span 2; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">
+      <div id="expression">0</div>
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="clear" data-action="clear">C</button>
+      <button data-action="back">⌫</button>
+      <button class="op" data-value="%">%</button>
+      <button class="op" data-value="/">÷</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="op" data-value="*">×</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="op" data-value="-">−</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="op" data-value="+">+</button>
+
+      <button class="zero" data-value="0">0</button>
+      <button data-value=".">.</button>
+      <button class="equal" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <script>
+    const exprEl = document.getElementById("expression");
+    const resEl = document.getElementById("result");
+    let expression = "";
+
+    function updateDisplay() {
+      exprEl.textContent = expression || "0";
+      try {
+        const result = eval(expression.replace(/÷/g,"/").replace(/×/g,"*"));
+        resEl.textContent = (result !== undefined && expression)? "= " + result : "";
+      } catch {
+        resEl.textContent = "";
+      }
+    }
+
+    function appendValue(value) {
+      expression += value;
+      updateDisplay();
+    }
+
+    function clearDisplay() {
+      expression = "";
+      updateDisplay();
+    }
+
+    function backspace() {
+      expression = expression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        expression = eval(expression).toString();
+        updateDisplay();
+      } catch {
+        resEl.textContent = "Error";
+      }
+    }
+
+    document.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const val = btn.dataset.value;
+        const action = btn.dataset.action;
+        if (action === "clear") clearDisplay();
+        else if (action === "back") backspace();
+        else if (action === "equals") calculate();
+        else if (val) appendValue(val);
+      });
+    });
+
+    // Keyboard support
+    document.addEventListener("keydown", e => {
+      if ((e.key >= "0" && e.key <= "9") || ["+","-","*","/","%","."].includes(e.key)) {
+        appendValue(e.key);
+      } else if (e.key === "Enter") {
+        calculate();
+      } else if (e.key === "Backspace") {
+        backspace();
+      } else if (e.key === "Escape") {
+        clearDisplay();
+      }
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
